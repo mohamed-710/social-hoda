@@ -1,11 +1,5 @@
-# socialMedia
-A social media web app with basic functionalities that I created after following the instruction from a Youtube video.
 
 
-# Screenshots:
-![image](https://github.com/hungvancap/socialMedia/assets/51280437/99d920b2-c2e4-4e5e-b95e-6dc12857ed64)
-![image](https://github.com/hungvancap/socialMedia/assets/51280437/85028081-7163-475d-90e6-c1a35d297dfc)
-![image](https://github.com/hungvancap/socialMedia/assets/51280437/da7653cc-6e5b-4d42-8ab0-eb9f16c079af)
 
 # Features:
 - Sign up, log in, log out
