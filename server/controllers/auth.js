@@ -21,9 +21,12 @@ const register = async (req, res) => {
       firstName,
       lastName,
       email,
+      location,
       password: passwordHash,
       picturePath,
       friends,
+      education,
+      work,
       viewedProfile: Math.floor(Math.random() * 10000),
       impressions: Math.floor(Math.random() * 10000),
     });
@@ -46,6 +49,7 @@ const login = async (req, res) => {
     if (!isMatch) return res.status(400).json({ msg: "Invalid credentials." });
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+
     delete user.password;
     res.status(200).json({ token, user });
   } catch (err) {

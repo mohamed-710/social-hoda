@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import {
   Box,
   IconButton,
@@ -23,13 +23,19 @@ import { useDispatch, useSelector } from "react-redux";
 import { setMode, setLogout } from "state";
 import { useNavigate } from "react-router-dom";
 import FlexBetween from "components/FlexBetween";
+import axios from "axios";
 
 const Navbar = () => {
   const [isMobileMenuToggled, setIsMobileMenuToggled] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
+  const [searchQuery, setSearchQuery] = useState(""); 
+  const [searchResults, setSearchResults] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const user = useSelector((state) => state.user);
+  const token = useSelector((state) => state.token);
+
   const isNonMobileScreens = useMediaQuery("(min-width: 1000px)");
 
   const theme = useTheme();
@@ -49,7 +55,55 @@ const Navbar = () => {
   const handleMenuClose = () => {
     setAnchorEl(null);
   };
+// دي فانكشن ال seacrh 
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      handleSearch();
+    }, 500); 
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchQuery]);
 
+  const handleSearch = async () => {
+    if (!searchQuery.trim()) {
+      setSearchResults([]); // Reset results if search query is empty
+      return;
+    }
+
+    if (!token) {
+      console.error('User token is missing');
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+
+      const params = { name: searchQuery }; 
+
+      const response = await axios.get('http://localhost:3001/users/search', {
+        params,
+        headers: {
+          Authorization: `Bearer ${token}`, 
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.data && response.data.users) {
+        console.log('Search results:', response.data.users);
+        setSearchResults(response.data.users); 
+      } else {
+        console.warn('No users found for the search query.');
+        setSearchResults([]); 
+      }
+    } catch (error) {
+      if (error.response) {
+        console.error('Server responded with error:', error.response.data);
+      } else {
+        console.error('Error during search request:', error.message);
+      }
+    } finally {
+      setIsLoading(false); 
+    }
+  };
   return (
     <FlexBetween padding="1rem 6%" backgroundColor={alt}>
       {/* Logo and Search */}
@@ -79,13 +133,30 @@ const Navbar = () => {
             gap="3rem"
             padding="0.1rem 1.5rem"
           >
-            <InputBase placeholder="Search..." />
-            <IconButton>
+            {/* ال ui بتاع ال searc */}
+            <InputBase h 
+            placeholder="Search..." 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <IconButton> 
               <Search />
             </IconButton>
           </FlexBetween>
         )}
       </FlexBetween>
+      {searchResults.length > 0 && (
+  <Box>
+    {searchResults.map((user) => (
+      <Box key={user._id} onClick={() => navigate(`/profile/${user._id}`)}>
+        <Typography>{user.firstName} {user.lastName}</Typography>
+        <Avatar alt={user.firstName}  src={`http://localhost:3001/assets/${user.picturePath}`} />
+      </Box>
+    ))}
+  </Box>
+)}
+
+
 
       {/* Desktop Navigation */}
       {isNonMobileScreens ? (

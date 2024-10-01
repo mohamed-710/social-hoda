@@ -6,6 +6,7 @@ import {
   ShareOutlined,
   MoreHoriz,
   Send,
+  DeleteOutline,
 } from "@mui/icons-material";
 import {
   Box,
@@ -35,6 +36,7 @@ const PostWidget = ({
   userPicturePath,
   likes,
   comments,
+  createdAt
 }) => {
   const [isComments, setIsComments] = useState(false);
   const [newComment, setNewComment] = useState("");
@@ -119,6 +121,18 @@ const PostWidget = ({
       console.error("Error deleting comment:", error);
     }
   };
+  // هي دي فانكشن ال delete ي حوده 
+  const handleDeletePost = async () => {
+    try {
+      const response = await axios.delete(`http://localhost:3001/posts/${postId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      // Dispatch the updated posts state if needed
+      dispatch(setPost({ post: response.data })); // Adjust according to your state management
+    } catch (error) {
+      console.error("Error deleting post:", error);
+    }
+  };
 
   const handleMenuOpen = (event, commentId) => {
     setAnchorEl(event.currentTarget);
@@ -129,6 +143,28 @@ const PostWidget = ({
     setAnchorEl(null);
     setCurrentCommentId(null);
   };
+  // دي فانكشن بتاعه الوقت  ال ف ال كومنت 
+  const timeAgo = (date) => {
+    const seconds = Math.floor((new Date() - new Date(date)) / 1000);
+    
+    let interval = Math.floor(seconds / 31536000);
+    if (interval >= 1) return `${interval} y`;
+  
+    interval = Math.floor(seconds / 2592000);
+    if (interval >= 1) return `${interval} M`;
+  
+    interval = Math.floor(seconds / 86400);
+    if (interval >= 1) return `${interval} d`;
+  
+    interval = Math.floor(seconds / 3600);
+    if (interval >= 1) return `${interval} h`;
+  
+    interval = Math.floor(seconds / 60);
+    if (interval >= 1) return `${interval} m`;
+  
+    return `${seconds} s`;
+  };
+  
 
   return (
     <WidgetWrapper m="2rem 0">
@@ -138,6 +174,16 @@ const PostWidget = ({
         subtitle={location}
         userPicturePath={userPicturePath}
       />
+   {/* ده ui بتاع تاريخ انشاء البوست */}
+        <Typography variant="body2" color="textSecondary">
+    {new Date(createdAt).toLocaleString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+    })}
+</Typography>
       <Typography color={main} sx={{ mt: "1rem" }}>
         {description}
       </Typography>
@@ -171,7 +217,13 @@ const PostWidget = ({
         </FlexBetween>
         <IconButton>
           <ShareOutlined />
+          {/* وده ال ui بتاعها عدل بقي براحتك عيششش */}
         </IconButton>
+        {loggedInUserId === postUserId && ( // Check if the logged-in user is the post owner
+    <IconButton onClick={handleDeletePost} sx={{ color: "red" }}> 
+      <DeleteOutline />
+    </IconButton>
+     )}
       </FlexBetween>
       {isComments && (
         <Box mt="0.5rem">
@@ -233,19 +285,32 @@ const PostWidget = ({
                   </Button>
                 </Box>
               ) : (
-                <Box
-                  display="flex"
-                  justifyContent="space-between"
-                  alignItems="center"
-                  mt="0.5rem"
-                >
-                  <Typography sx={{ color: main, m: "0.5rem 0", pl: "1rem" }}>
-                    {comment.comment}
-                  </Typography>
+                // هنا ي حوده ال ui بتاع ال comment 
+                <Box display="flex" justifyContent="space-between" alignItems="center" mt="0.5rem" gap="0.5rem">
+                  <Box display="flex" alignItems="center" gap="0.5rem">
+                    <img
+                      src={`http://localhost:3001/assets/${comment.picturePath}`} 
+                      alt={`${comment.firstName} ${comment.lastName}`}
+                      style={{
+                        width: "40px",
+                        height: "40px",
+                        borderRadius: "50%",
+                      }}
+                    />
+                    <Box>
+                      <Typography sx={{ color: main }}>
+                        {comment.firstName} {comment.lastName} 
+                      </Typography>
+                      <Typography sx={{ color: main }}>
+                        {comment.comment}
+                      </Typography>
+                      <Typography variant="body2" color="textSecondary">
+                        {timeAgo(comment.createdAt)} 
+                      </Typography>
+                    </Box>
+                  </Box>
                   {comment.userId === loggedInUserId && (
-                    <IconButton
-                      onClick={(e) => handleMenuOpen(e, comment.commentId)}
-                    >
+                    <IconButton onClick={(e) => handleMenuOpen(e, comment.commentId)}>
                       <MoreHoriz />
                     </IconButton>
                   )}
@@ -292,7 +357,7 @@ const PostWidget = ({
               disabled={!newComment.trim()} // Disable when input is empty
             >
               <Send sx={{ color: newComment.trim() ? "orange" : "grey" }} />{" "}
-              {/* Change color when input is empty */}
+
             </IconButton>
           </Box>
         </Box>

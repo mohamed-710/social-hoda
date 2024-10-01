@@ -49,7 +49,7 @@ app.use("/posts", postRoutes);
 
 /* MONGOOSE SETUP */
 const PORT = process.env.PORT || 3001;
-const DB_uri='mongodb+srv://mahmoudwalied2001:n8ScZXBaioDxOX0H@cluster0.sjp9d.mongodb.net/Cluster0?retryWrites=true&w=majority&appName=Cluster0';
+const DB_uri='mongodb+srv://gaza:123gaza@learn-mongo-db.7x5by.mongodb.net/gaza?retryWrites=true&w=majority&appName=learn-mongo-db';
 mongoose.connect(DB_uri)
   .then(() => {
     app.listen(PORT, () => console.log(`Server running on port: ${PORT}`));

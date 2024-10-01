@@ -1,9 +1,8 @@
 import {
   ManageAccountsOutlined,
-  EditOutlined,
+  Edit,
   LocationOnOutlined,
   WorkOutlineOutlined,
-  Edit,
   SchoolOutlined,
 } from "@mui/icons-material";
 import {
@@ -47,9 +46,9 @@ const UserWidget = ({ userId, picturePath }) => {
         }
       );
       setUser(response.data);
-      setNewLocation(response.data.location); // Set initial location value
-      setNewEducation(response.data.education); // Set initial education value
-      setNewWork(response.data.work); // Set initial work value
+      setNewLocation(response.data.location);
+      setNewEducation(response.data.education);
+      setNewWork(response.data.work);
     } catch (error) {
       console.error("Error fetching user data:", error);
     }
@@ -59,28 +58,33 @@ const UserWidget = ({ userId, picturePath }) => {
     getUser();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const updateUser = async (field, value) => {
+    try {
+      await axios.patch(`http://localhost:3001/users/${userId}`, { [field]: value }, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setUser((prevUser) => ({
+        ...prevUser,
+        [field]: value, 
+      }));
+    } catch (error) {
+      console.error(`Error updating ${field}:`, error);
+    }
+  };
+
   const handleSaveLocation = () => {
-    setUser((prevUser) => ({
-      ...prevUser,
-      location: newLocation, // Update location with the new value
-    }));
-    setOpenDialog(false); // Close the dialog
+    updateUser("location", newLocation);
+    setOpenDialog(false);
   };
 
   const handleSaveEducation = () => {
-    setUser((prevUser) => ({
-      ...prevUser,
-      education: newEducation, // Update education with the new value
-    }));
-    setOpenDialogEducation(false); // Close the dialog
+    updateUser("education", newEducation); 
+    setOpenDialogEducation(false);
   };
 
   const handleSaveWork = () => {
-    setUser((prevUser) => ({
-      ...prevUser,
-      work: newWork, // Update work with the new value
-    }));
-    setOpenDialogWork(false); // Close the dialog
+    updateUser("work", newWork); 
+    setOpenDialogWork(false);
   };
 
   if (!user) {
@@ -147,7 +151,7 @@ const UserWidget = ({ userId, picturePath }) => {
               sx={{ color: palette.neutral.main, cursor: "pointer" }}
               onClick={() => {
                 setOpenDialog(true);
-                setNewLocation(location); // Set the current location to the input
+                setNewLocation(location);
               }}
             />
           </Box>
@@ -240,7 +244,7 @@ const UserWidget = ({ userId, picturePath }) => {
               sx={{ color: palette.neutral.main, cursor: "pointer" }}
               onClick={() => {
                 setOpenDialogEducation(true);
-                setNewEducation(education); // Set the current education to the input
+                setNewEducation(education);
               }}
             />
           </Box>
@@ -333,7 +337,7 @@ const UserWidget = ({ userId, picturePath }) => {
               sx={{ color: palette.neutral.main, cursor: "pointer" }}
               onClick={() => {
                 setOpenDialogWork(true);
-                setNewWork(work); // Set the current work to the input
+                setNewWork(work);
               }}
             />
           </Box>
@@ -412,18 +416,18 @@ const UserWidget = ({ userId, picturePath }) => {
         </DialogActions>
       </Dialog>
 
+      <Divider />
+
       {/* FIFTH ROW */}
       <Box p="1rem 0">
-        <Box display="flex" alignItems="center" gap="1rem" mb="0.5rem">
+        <FlexBetween>
           <Typography color={palette.neutral.medium}>
-            Viewed {viewedProfile} times
+            {viewedProfile} people viewed your profile
           </Typography>
-          <Box sx={{ marginLeft: "auto" }}>
-            <Typography color={palette.neutral.medium}>
-              Impressions {impressions}
-            </Typography>
-          </Box>
-        </Box>
+          <Typography color={palette.neutral.medium}>
+            {impressions} impressions
+          </Typography>
+        </FlexBetween>
       </Box>
     </WidgetWrapper>
   );
