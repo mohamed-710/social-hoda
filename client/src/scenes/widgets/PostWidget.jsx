@@ -25,6 +25,7 @@ import WidgetWrapper from "components/WidgetWrapper";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setPost } from "state";
+import CommentLikeButton from "components/CommentLikeButton";
 
 const PostWidget = ({
   postId,
@@ -309,6 +310,14 @@ const PostWidget = ({
                       </Typography>
                     </Box>
                   </Box>
+                  {/* مكان components ال likeButooon */}
+                  <FlexBetween>
+                  <CommentLikeButton
+        commentId={comment.commentId}
+        postId={postId}
+        likes={comment.likes}
+      />
+         </FlexBetween>
                   {comment.userId === loggedInUserId && (
                     <IconButton onClick={(e) => handleMenuOpen(e, comment.commentId)}>
                       <MoreHoriz />

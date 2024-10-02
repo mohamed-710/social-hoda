@@ -172,7 +172,14 @@ const Navbar = () => {
             )}
           </IconButton>
           <IconButton onClick={handleMenuClick}>
-            <Avatar alt={fullName} src={user.profilePicture} />
+          <img
+                      src={`http://localhost:3001/assets/${user.picturePath}`} 
+                      style={{
+                        width: "40px",
+                        height: "40px",
+                        borderRadius: "50%",
+                      }}
+                      />
           </IconButton>
           <Menu
             anchorEl={anchorEl}
